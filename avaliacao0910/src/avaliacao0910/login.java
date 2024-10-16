@@ -101,20 +101,14 @@ public class login extends javax.swing.JFrame {
             conexao bd = new conexao();
             bd.getConnection();
             Statement stmt = bd.conn.createStatement();
-            String sql = "Select * from Login ";
+            String sql = "SELECT * FROM Login WHERE usuario = '" + jTextField2.getText() + "' AND senha = '" + jTextField3.getText() + "'";
             ResultSet rs = stmt.executeQuery(sql);
-            while (rs.next()) {
-                usuario = rs.getString("usuario");
-                senha = rs.getString("senha");
-            }
-            if (jTextField2.getText().equals(usuario) || jTextField2.getText().equals(senha)) {
+            if (rs.next()) {
                 JOptionPane.showMessageDialog(null, "Seja bem vindo ao sistema!");
-
-            } else {
-                
-                JOptionPane.showMessageDialog(null, "Login ou Senha Incorretos.");
                 new servicos().setVisible(true);
                 this.setVisible(false);
+            } else {
+                JOptionPane.showMessageDialog(null, "Login ou Senha Incorretos.");
             }
         } catch (SQLException erro) {
             System.err.println("SQLException: " + erro.getMessage());
