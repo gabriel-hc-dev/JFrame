@@ -2,15 +2,17 @@ package avaliacao0910;
 
 import javax.swing.*;
 import java.sql.*;
+import java.util.Vector; 
+import java.util.logging.Level; 
+import java.util.logging.Logger;
+import javax.swing.table.DefaultTableModel;
 
 public class servicos extends javax.swing.JFrame {
 
-    /**
-     * Creates new form tela
-     */
+    private ResultSet rs; 
+    
     public servicos() {
         initComponents();
-        atualizarTabela();
 
     }
 
@@ -70,6 +72,12 @@ public class servicos extends javax.swing.JFrame {
 
         jLabel2.setText("Descrição");
 
+        jTextField2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jTextField2ActionPerformed(evt);
+            }
+        });
+
         jLabel3.setText("Valor");
 
         jButton1.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
@@ -81,8 +89,18 @@ public class servicos extends javax.swing.JFrame {
         });
 
         jButton2.setText("Consultar");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
 
         jButton3.setText("Alterar");
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton3ActionPerformed(evt);
+            }
+        });
 
         jButton4.setText("Excluir");
         jButton4.addActionListener(new java.awt.event.ActionListener() {
@@ -181,8 +199,6 @@ public class servicos extends javax.swing.JFrame {
             stmt.executeUpdate(sql);
             JOptionPane.showMessageDialog(this, "Serviço cadastrado com sucesso!");
 
-            atualizarTabela();
-
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(this, "Erro ao cadastrar serviço: " + ex.getMessage());
         } catch (NumberFormatException ex) {
@@ -191,12 +207,89 @@ public class servicos extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
-
+        int i = 0 ;
+        conexao bd = new conexao(); 
+        bd.getConnection();
+        Statement stmt; 
+        try{
+            stmt = bd.conn.createStatement(); 
+            String valorSelecao = jTable1.getValueAt(jTable1.getSelectedRow(),jTable1.getSelectedColumn()).toString(); 
+         int status = JOptionPane.showConfirmDialog(null, "Deseja excluir o item" + valorSelecao + "?","Atenção", JOptionPane.YES_NO_OPTION);   
+        if(status == JOptionPane.YES_OPTION){
+        String sql = "DELETE FROM Servicos where codigo = " + valorSelecao; 
+        stmt.executeUpdate(sql);
+        JOptionPane.showMessageDialog(null,"Excluido com sucesso");
+        }
+        }catch(SQLException ex){
+            Logger.getLogger(cadastro.class.getName()).log(Level.SEVERE, null, ex);
+        }
+                
     }//GEN-LAST:event_jButton4ActionPerformed
 
     private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
         System.exit(0);
     }//GEN-LAST:event_jButton5ActionPerformed
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        try {
+            consultar();
+        } catch (SQLException ex) {
+        }
+    }//GEN-LAST:event_jButton2ActionPerformed
+public void consultar() throws SQLException {
+    conexao bd = new conexao(); 
+    bd.getConnection(); 
+    Statement stmt = bd.conn.createStatement(); 
+    String sql = "SELECT * FROM Servicos"; 
+    rs = stmt.executeQuery(sql); 
+    if(rs == null){
+        return;
+    }
+    ResultSetMetaData rsmd;
+    rsmd = rs.getMetaData();
+    Vector vetColuna = new Vector();
+    for (int i = 0; i < rsmd.getColumnCount(); i++){
+        vetColuna.add(rsmd.getColumnLabel(i + 1));
+    }
+    
+    Vector vetLinhas = new Vector();
+    
+    while(rs.next()){
+        Vector vetLinha = new Vector();
+        for(int i = 0; i < rsmd.getColumnCount(); i++){
+            vetLinha.add(rs.getObject(i+1));
+        }
+        vetLinhas.add(vetLinha);
+        jTable1.setModel(new DefaultTableModel(vetLinhas, vetColuna));
+    }
+    limpar();
+            
+}
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+        try {
+            conexao bd = new conexao();
+            bd.getConnection();
+            Statement stmt = bd.conn.createStatement();
+            String sql = "update Servicos set descricaoServico = '" + jTextField2.getText() + "' ,valorServico=" + jTextField3.getText()
+                    + " where codigoServico = " + jTextField1.getText();
+            stmt.executeUpdate(sql);
+            stmt.close();
+        } catch (SQLException ex) {
+            System.err.println("SQLException: " + ex.getMessage());
+        }
+        JOptionPane.showMessageDialog(null, "Registro Atualizado com Sucesso!");
+        limpar();
+    }//GEN-LAST:event_jButton3ActionPerformed
+
+    private void jTextField2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField2ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jTextField2ActionPerformed
+    public void limpar() {
+        jTextField1.setText("");
+        jTextField2.setText("");
+        jTextField3.setText("");
+
+    }
 
     /**
      * @param args the command line arguments
@@ -236,28 +329,6 @@ public class servicos extends javax.swing.JFrame {
         });
     }
 
-    private void atualizarTabela() {
-        try {
-            int selectedRow = jTable1.getSelectedRow();
-            if (selectedRow == -1) {
-                JOptionPane.showMessageDialog(this, "Selecione um serviço para alterar.");
-                return;
-            }
-            String descricao = jTextField2.getText();
-            String preco = jTextField3.getText();
-
-            conexao bd = new conexao();
-            bd.getConnection();
-            Statement stmt = bd.conn.createStatement();
-            String sql = "UPDATE Servicos SET descricaoServico = ?, valorServico = ? WHERE descricaoServico = ?";
-            stmt.executeUpdate(sql);
-            JOptionPane.showMessageDialog(this, "Serviço alterado com sucesso!");
-            atualizarTabela(); // Atualiza a tabela
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this, "Erro ao alterar serviço: " + e.getMessage());
-        } catch (NumberFormatException e) {
-        }
-    }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
