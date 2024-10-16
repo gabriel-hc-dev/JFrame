@@ -207,6 +207,7 @@ public class servicos extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
+        //BTN_EXCLUIR: PARA EXCLUIR, DEVE-SE CLICAR NA PRIMARY KEY DA LINHA A SER EXCLUÍDA E DEPOIS EM "Excluir".
         int i = 0 ;
         conexao bd = new conexao(); 
         bd.getConnection();
@@ -216,12 +217,12 @@ public class servicos extends javax.swing.JFrame {
             String valorSelecao = jTable1.getValueAt(jTable1.getSelectedRow(),jTable1.getSelectedColumn()).toString(); 
          int status = JOptionPane.showConfirmDialog(null, "Deseja excluir o item" + valorSelecao + "?","Atenção", JOptionPane.YES_NO_OPTION);   
         if(status == JOptionPane.YES_OPTION){
-        String sql = "DELETE FROM Servicos where codigo = " + valorSelecao; 
+        String sql = "DELETE FROM Servicos where codigoServico = " + valorSelecao; 
         stmt.executeUpdate(sql);
         JOptionPane.showMessageDialog(null,"Excluido com sucesso");
         }
         }catch(SQLException ex){
-            Logger.getLogger(cadastro.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(servicos.class.getName()).log(Level.SEVERE, null, ex);
         }
                 
     }//GEN-LAST:event_jButton4ActionPerformed
